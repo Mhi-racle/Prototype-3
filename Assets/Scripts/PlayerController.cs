@@ -1,12 +1,13 @@
 
 using UnityEngine;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
     //variables
     private Rigidbody playerRb;
     private Animator playerAnim;
-     private AudioSource playerAudio;
+    private AudioSource playerAudio;
 
     public float jumpForce = 10f;
     public float gravityModifier;
@@ -20,6 +21,8 @@ public class PlayerController : MonoBehaviour
     public bool jumpedOnce = true;
     public int jumpCount = 0;
 
+    private MoveLeft backgroundMoveLeft;
+
    
 
     // Start is called before the first frame update
@@ -29,6 +32,7 @@ public class PlayerController : MonoBehaviour
         Physics.gravity *= gravityModifier;
         playerAnim = GetComponent<Animator>();
         playerAudio = GetComponent<AudioSource>();
+        backgroundMoveLeft = GameObject.Find("Background").GetComponent<MoveLeft>();
     }
 
     // Update is called once per frame
@@ -45,6 +49,9 @@ public class PlayerController : MonoBehaviour
             jumpedOnce = true;
         }
        
+       if(Input.GetKeyDown(KeyCode.Q)){
+           playerDash();
+       }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -79,5 +86,10 @@ public class PlayerController : MonoBehaviour
         playerAnim.SetTrigger("Jump_trig");
             dirtParticle.Stop();
             playerAudio.PlayOneShot(jumpSound, 1.0f);
+    }
+
+    private void playerDash(){
+        Debug.Log("Player Dashing");
+        backgroundMoveLeft.speed = 100f;
     }
 }
