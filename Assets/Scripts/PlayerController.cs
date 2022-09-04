@@ -17,6 +17,9 @@ public class PlayerController : MonoBehaviour
     public AudioClip jumpSound;
     public AudioClip crashSound;
 
+    public bool jumpedOnce = true;
+    public int jumpCount = 0;
+
    
 
     // Start is called before the first frame update
@@ -31,18 +34,17 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && !gameOver)
+        if (Input.GetKeyDown(KeyCode.Space) && !gameOver && !jumpedOnce)
         {
             PlayerJump();
             isGrounded = false;
-            
+            jumpCount++;
+        } 
+
+        if(jumpCount > 1){
+            jumpedOnce = true;
         }
-        if(!isGrounded){
-            if(Input.GetKeyDown(KeyCode.Space)){
-                PlayerJump();
-                isGrounded = false;
-            }
-        }
+       
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -52,6 +54,10 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = true;
             dirtParticle.Play();
+
+            //sets the jumpCount to zero once it's on the ground and resets the jumpedOnce boolean
+            jumpCount = 0;
+            jumpedOnce = false;
         }
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
