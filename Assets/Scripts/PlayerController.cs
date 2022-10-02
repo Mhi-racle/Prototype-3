@@ -9,10 +9,11 @@ public class PlayerController : MonoBehaviour
     private Animator playerAnim;
     private AudioSource playerAudio;
 
+    private GameManager gameManager;
     public float jumpForce = 10f;
     public float gravityModifier;
     public bool isGrounded = true;
-    public bool gameOver;
+    public bool gameOver = true;
     public ParticleSystem explosionParticle;
     public ParticleSystem dirtParticle;
     public AudioClip jumpSound;
@@ -23,35 +24,38 @@ public class PlayerController : MonoBehaviour
 
     private MoveLeft backgroundMoveLeft;
 
-   
+
 
     // Start is called before the first frame update
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();
-        Physics.gravity *= gravityModifier;
+        // Physics.gravity *= gravityModifier;
         playerAnim = GetComponent<Animator>();
         playerAudio = GetComponent<AudioSource>();
         backgroundMoveLeft = GameObject.Find("Background").GetComponent<MoveLeft>();
+        gameManager = FindObjectOfType<GameManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !gameOver && !jumpedOnce)
+        if (Input.GetKeyDown(KeyCode.Space) && !gameOver && isGrounded)
         {
             PlayerJump();
             isGrounded = false;
-            jumpCount++;
-        } 
-
-        if(jumpCount > 1){
-            jumpedOnce = true;
+            // jumpCount++;
         }
-       
-       if(Input.GetKeyDown(KeyCode.Q)){
-           playerDash();
-       }
+
+        // if (jumpCount > 1)
+        // {
+        //     jumpedOnce = true;
+        // }
+
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            playerDash();
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -61,35 +65,40 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = true;
             dirtParticle.Play();
-
-            //sets the jumpCount to zero once it's on the ground and resets the jumpedOnce boolean
-            jumpCount = 0;
-            jumpedOnce = false;
+            playerAnim.enabled = true;
+            // //sets the jumpCount to zero once it's on the ground and resets the jumpedOnce boolean
+            // jumpCount = 0;
+            // jumpedOnce = false;
         }
         else if (collision.gameObject.CompareTag("Obstacle"))
         {
             Debug.Log("Game Over");
             gameOver = true;
-            playerAnim.SetBool("Death_b", true);
-            playerAnim.SetInteger("DeathType_int", 1);
+            // playerAnim.SetBool("Death_b", true);
+            // playerAnim.SetInteger("DeathType_int", 1);
             explosionParticle.Play();
             dirtParticle.Stop();
-            playerAudio.PlayOneShot(crashSound, 1.0f);
-           
+            StartCoroutine(gameManager.GameOver());
+            // playerAudio.PlayOneShot(crashSound, 1.0f);
+
         }
 
     }
 
     // A function that handles the player's jump
-    private void PlayerJump(){
-         playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-        playerAnim.SetTrigger("Jump_trig");
-            dirtParticle.Stop();
-            playerAudio.PlayOneShot(jumpSound, 1.0f);
+    private void PlayerJump()
+    {
+        playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        // playerAnim.SetTrigger("Jump_trig");
+        playerAnim.enabled = false;
+        dirtParticle.Stop();
+        // playerAudio.PlayOneShot(jumpSound, 1.0f);
     }
 
-    private void playerDash(){
+    private void playerDash()
+    {
         Debug.Log("Player Dashing");
         backgroundMoveLeft.speed = 100f;
     }
 }
+
